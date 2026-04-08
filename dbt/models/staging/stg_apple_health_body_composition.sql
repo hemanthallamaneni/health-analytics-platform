@@ -18,7 +18,7 @@ parsed AS (
         source,
         start_date::TIMESTAMP AS start_time,
         end_date::TIMESTAMP AS end_time,
-        value::FLOAT,
+        value::FLOAT AS value,
         measurement_type,
         unit,
         raw_json,

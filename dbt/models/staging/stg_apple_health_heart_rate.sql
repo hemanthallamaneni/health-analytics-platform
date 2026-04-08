@@ -17,7 +17,7 @@ parsed AS (
         source,
         start_date::TIMESTAMP AS start_time,
         end_date::TIMESTAMP AS end_time,
-        heart_rate::FLOAT,
+        heart_rate::FLOAT AS heart_rate,
         unit,
         raw_json,
         creation::TIMESTAMP AS created_at
