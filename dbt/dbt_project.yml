@@ -31,6 +31,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   health_analytics:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    staging:
+      +schema: MART_HEALTH
       +materialized: view
+    marts:
+      +schema: MART_HEALTH
+      +materialized: table
