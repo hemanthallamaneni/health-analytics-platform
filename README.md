@@ -15,7 +15,7 @@ This project consolidates all sources into a single warehouse, builds a unified 
 │                    Source Systems                   │
 │                                                     │
 │   Oura API v2  •  Apple Health XML  •  Strava API   │
-│                 (incl. RENPHO via HealthKit)         │
+│                 (incl. RENPHO via HealthKit)        │
 └────────────────────────┬────────────────────────────┘
                          │
                          │  Python ingestion scripts
