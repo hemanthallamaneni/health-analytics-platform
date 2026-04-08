@@ -1,0 +1,11 @@
+[project]
+name = "health-analytics-platform"
+version = "0.1.0"
+description = "Personal health analytics platform: ingestion, transformation, and analysis of Oura, Apple Health, and HealthFit data using Python, dbt, and Snowflake."
+authors = [
+    { name = "Hemanth Allamaneni", email = "109781897+hemanthallamaneni@users.noreply.github.com" }
+]
+requires-python = ">=3.12.13"
+dependencies = [
+    "requests>=2.33.1",
+]
