@@ -1,48 +1,43 @@
 # Health Analytics Platform
 
-A personal health data pipeline that ingests, transforms, and analyzes data from
-Oura Ring, Apple Health, and HealthFit using a modern ELT stack: Python for
-ingestion, Snowflake as the warehouse, and dbt for transformation.
+A personal health data pipeline that ingests, transforms, and analyzes data from Oura Ring, Apple Health, and HealthFit using a modern ELT stack: Python for ingestion, Snowflake as the warehouse, and dbt for transformation.
 
 ## Why this exists
 
-Personal health data lives in siloed apps. Oura tracks sleep and recovery,
-Apple Health collects activity and biometrics, HealthFit captures workouts.
-Each app has its own dashboard, but none of them talk to each other, and none
-of them let me ask cross-source questions like "how does sleep quality two
-nights before a long run correlate with run performance?"
+Personal health data lives in siloed apps. Oura tracks sleep and recovery, Apple Health collects activity and biometrics, HealthFit captures workouts. Each app has its own dashboard, but none of them talk to each other, and none of them let me ask cross-source questions like "how does sleep quality two nights before a long run correlate with run performance?"
 
-This project consolidates all three sources into a single warehouse, builds a
-unified daily metrics model on top, and creates the foundation for analytical
-work that none of the source apps support natively.
+This project consolidates all three sources into a single warehouse, builds a unified daily metrics model on top, and creates the foundation for analytical work that none of the source apps support natively.
 
 ## Architecture
-┌─────────────────────────────────────┐
-                │           Source Systems            │
-                │                                     │
-                │  Oura API  •  Apple Health Export   │
-                │           HealthFit CSV             │
-                └──────────────────┬──────────────────┘
-                                   │
-                                   │  Python ingestion
-                                   │  (scheduled & on-demand)
-                                   ▼
-                ┌─────────────────────────────────────┐
-                │         Snowflake Warehouse         │
-                │                                     │
-                │  raw_oura  •  raw_apple_health      │
-                │          raw_healthfit              │
-                └──────────────────┬──────────────────┘
-                                   │
-                                   │  dbt transformation
-                                   │  (staging → marts)
-                                   ▼
-                ┌─────────────────────────────────────┐
-                │            mart_health              │
-                │                                     │
-                │   Unified daily metrics model       │
-                │   ready for analysis & dashboards   │
-                └─────────────────────────────────────┘
+```
+                    ┌─────────────────────────────────────┐
+                    │           Source Systems            │
+                    │                                     │
+                    │  Oura API  •  Apple Health Export   │
+                    │           HealthFit CSV             │
+                    └──────────────────┬──────────────────┘
+                                       │
+                                       │  Python ingestion
+                                       │  (scheduled & on-demand)
+                                       ▼
+                    ┌─────────────────────────────────────┐
+                    │         Snowflake Warehouse         │
+                    │                                     │
+                    │  raw_oura  •  raw_apple_health      │
+                    │          raw_healthfit              │
+                    └──────────────────┬──────────────────┘
+                                       │
+                                       │  dbt transformation
+                                       │  (staging → marts)
+                                       ▼
+                    ┌─────────────────────────────────────┐
+                    │            mart_health              │
+                    │                                     │
+                    │   Unified daily metrics model       │
+                    │   ready for analysis & dashboards   │
+                    └─────────────────────────────────────┘
+```
+
 ## Tech stack
 
 - **Python 3.12** managed via pyenv, with uv for dependency and environment management
@@ -53,6 +48,7 @@ work that none of the source apps support natively.
 - **HealthFit CSV exports** for workout-level data
 
 ## Repository structure
+```
 health-analytics-platform/
 ├── pyproject.toml          # Project metadata and dependencies (managed by uv)
 ├── uv.lock                 # Exact dependency versions for reproducibility
@@ -68,6 +64,8 @@ health-analytics-platform/
 │   └── processed/          # Intermediate processed files
 ├── docs/                   # Architecture and design documentation
 └── tests/                  # Python tests for ingestion code
+```
+
 ## Current status
 
 This project is under active development. Current state:
@@ -85,15 +83,11 @@ This project is under active development. Current state:
 
 ## Data privacy
 
-This is a personal health analytics project. The repository contains code only.
-No actual health data, credentials, API tokens, or personally identifiable
-information is committed to git. All data files in `data/` are gitignored, and
-secrets live in a local `.env` file that is excluded from version control.
+This is a personal health analytics project. The repository contains code only. No actual health data, credentials, API tokens, or personally identifiable information is committed to git. All data files in `data/` are gitignored, and secrets live in a local `.env` file that is excluded from version control.
 
 ## Setup (work in progress)
 
-Setup instructions will be documented here as the project matures. The current
-prerequisites are:
+Setup instructions will be documented here as the project matures. The current prerequisites are:
 
 - Linux or macOS with a modern shell
 - pyenv with Python 3.12.13 installed
@@ -104,4 +98,3 @@ prerequisites are:
 ## Author
 
 Hemanth Allamaneni
-
