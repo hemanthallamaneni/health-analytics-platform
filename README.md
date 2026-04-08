@@ -266,7 +266,6 @@ The mart table `DAILY_HEALTH_SUMMARY` contains one row per day anchored to Oura 
 - [x] Unified pipeline runner script
 - [ ] dbt tests (not-null, unique, accepted values)
 - [ ] Orchestration (scheduled runs)
-- [ ] Analytical models (Projects 1–5)
 
 ## Data privacy
 
