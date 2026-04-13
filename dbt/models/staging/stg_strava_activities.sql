@@ -8,7 +8,7 @@ WITH raw AS (
         distance,
         raw_json,
         loaded_at
-    FROM HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES
+    FROM {{ source('raw_strava', 'raw_activities') }}
 ),
 
 parsed AS (

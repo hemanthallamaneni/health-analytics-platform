@@ -10,7 +10,7 @@ WITH raw AS (
         raw_json,
         creation,
         loaded_at
-    FROM HEALTH_ANALYTICS.RAW_APPLE_HEALTH.RAW_BODY_COMPOSITION
+    FROM {{ source('raw_apple_health', 'raw_body_composition') }}
 ),
  
 parsed AS (

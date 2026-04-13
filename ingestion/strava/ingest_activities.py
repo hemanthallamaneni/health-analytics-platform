@@ -44,7 +44,7 @@ def get_last_activity_date(cursor):
     try:
         cursor.execute("""
             SELECT MAX(start_date)
-            FROM HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES
+            FROM RAW_ACTIVITIES
         """)
         result = cursor.fetchone()[0]
         return result
@@ -74,7 +74,7 @@ def fetch_strava_activities(access_token, after_timestamp=None):
 
 def write_to_snowflake(records, cursor, conn):
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES (
+        CREATE TABLE IF NOT EXISTS RAW_ACTIVITIES (
             id STRING,
             name STRING,
             sport_type STRING,
@@ -101,7 +101,7 @@ def write_to_snowflake(records, cursor, conn):
             for r in batch
         ]
         cursor.executemany(
-            """MERGE INTO HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES AS target
+            """MERGE INTO RAW_ACTIVITIES AS target
             USING (SELECT %s AS id, %s AS name, %s AS sport_type, %s AS start_date,
                           %s AS elapsed_time, %s AS distance, %s AS raw_json) AS source
             ON target.id = source.id

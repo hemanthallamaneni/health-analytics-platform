@@ -9,7 +9,7 @@ with raw AS (
         raw_json,
         creation,
         loaded_at
-    FROM HEALTH_ANALYTICS.RAW_APPLE_HEALTH.RAW_HEART_RATE
+    FROM {{ source('raw_apple_health', 'raw_heart_rate') }}
 ),
 
 parsed AS (

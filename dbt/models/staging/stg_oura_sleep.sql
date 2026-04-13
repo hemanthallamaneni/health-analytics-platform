@@ -4,7 +4,7 @@ WITH raw AS (
         day,
         raw_json,
         loaded_at
-    FROM HEALTH_ANALYTICS.RAW_OURA.RAW_SLEEP
+    FROM {{ source('raw_oura', 'raw_sleep') }}
 ),
 
 parsed AS (
