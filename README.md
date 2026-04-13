@@ -65,7 +65,7 @@ health-analytics-platform/
 ├── README.md
 ├── ingestion/
 │   ├── oura/
-│   │   └── ingest_sleep.py               # Oura API — last 30 days of sleep
+│   │   └── ingest_sleep.py               # Oura API — full historical data
 │   ├── apple_health/
 │   │   ├── ingest_heart_rate.py          # Apple Health XML — full history
 │   │   └── ingest_body_composition.py    # RENPHO body metrics via HealthKit
@@ -129,6 +129,7 @@ SNOWFLAKE_PASSWORD=
 SNOWFLAKE_WAREHOUSE=
 SNOWFLAKE_DATABASE=
 OURA_PAT=
+OURA_START_DATE=
 STRAVA_CLIENT_ID=
 STRAVA_CLIENT_SECRET=
 STRAVA_ACCESS_TOKEN=
@@ -174,8 +175,8 @@ dbt run      # build all models
 
 Runs in sequence:
 
-1. **Oura** — pulls last 30 days of sleep data (automatic)
-2. **Strava** — fetches new activities since last run (automatic, incremental)
+1. **Oura** — pulls full configurable history via MERGE upsert (automatic)
+2. **Strava** — fetches new activities via MERGE upsert (automatic, incremental)
 3. **Apple Health** — prompts before running. Press `Enter` if you have a fresh export, or `s` to skip
 4. **dbt** — refreshes all staging models and the daily summary mart
 
@@ -226,10 +227,10 @@ RENPHO body composition data (weight, BMI, body fat %, lean body mass) syncs aut
 
 | Source | Method | Pattern | Schema |
 |--------|--------|---------|--------|
-| Oura Ring | REST API (PAT auth) | Full refresh, last 30 days | RAW_OURA |
+| Oura Ring | REST API (PAT auth) | MERGE upsert, full history | RAW_OURA |
 | Apple Health heart rate | XML export (HealthKit) | Full refresh on demand | RAW_APPLE_HEALTH |
 | RENPHO body composition | XML export (via HealthKit) | Full refresh on demand | RAW_APPLE_HEALTH |
-| Strava workouts | REST API (OAuth2) | Incremental | RAW_STRAVA |
+| Strava workouts | REST API (OAuth2) | MERGE upsert, incremental | RAW_STRAVA |
 
 ## dbt model lineage
 
