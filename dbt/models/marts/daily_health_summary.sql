@@ -18,7 +18,7 @@ WITH sleep AS (
             PARTITION BY sleep_date
             ORDER BY total_sleep_duration DESC
         ) AS rn
-    FROM HEALTH_ANALYTICS.MART_HEALTH.STG_OURA_SLEEP
+    FROM {{ ref('stg_oura_sleep') }}
     WHERE sleep_type = 'long_sleep'
 ),
 
@@ -29,7 +29,7 @@ heart_rate AS (
         MAX(heart_rate)  AS max_heart_rate,
         MIN(heart_rate)  AS min_heart_rate,
         COUNT(*)         AS hr_reading_count
-    FROM HEALTH_ANALYTICS.MART_HEALTH.STG_APPLE_HEALTH_HEART_RATE
+    FROM {{ ref('stg_apple_health_heart_rate') }}
     GROUP BY 1
 ),
 
@@ -52,7 +52,7 @@ body_comp_raw AS (
             THEN value END) IGNORE NULLS OVER (
             PARTITION BY start_time::DATE
             ORDER BY start_time)             AS bmi
-    FROM HEALTH_ANALYTICS.MART_HEALTH.STG_APPLE_HEALTH_BODY_COMPOSITION
+    FROM {{ ref('stg_apple_health_body_composition') }}
 ),
 
 sleep_spine AS (
@@ -87,7 +87,7 @@ activities AS (
         SUM(elapsed_time)     AS total_elapsed_time,
         SUM(elevation_gain)   AS total_elevation_gain,
         LISTAGG(sport_type, ', ') WITHIN GROUP (ORDER BY start_date) AS sport_types
-    FROM HEALTH_ANALYTICS.MART_HEALTH.STG_STRAVA_ACTIVITIES
+    FROM {{ ref('stg_strava_activities') }}
     GROUP BY 1
 )
 

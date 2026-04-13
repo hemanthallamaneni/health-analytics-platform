@@ -101,12 +101,24 @@ def write_to_snowflake(records, cursor, conn):
             for r in batch
         ]
         cursor.executemany(
-            """INSERT INTO HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES
-            (id, name, sport_type, start_date, elapsed_time, distance, raw_json)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            """MERGE INTO HEALTH_ANALYTICS.RAW_STRAVA.RAW_ACTIVITIES AS target
+            USING (SELECT %s AS id, %s AS name, %s AS sport_type, %s AS start_date,
+                          %s AS elapsed_time, %s AS distance, %s AS raw_json) AS source
+            ON target.id = source.id
+            WHEN MATCHED THEN UPDATE SET
+                name = source.name,
+                sport_type = source.sport_type,
+                start_date = source.start_date,
+                elapsed_time = source.elapsed_time,
+                distance = source.distance,
+                raw_json = source.raw_json,
+                loaded_at = CURRENT_TIMESTAMP()
+            WHEN NOT MATCHED THEN INSERT (id, name, sport_type, start_date, elapsed_time, distance, raw_json)
+                VALUES (source.id, source.name, source.sport_type, source.start_date,
+                        source.elapsed_time, source.distance, source.raw_json)""",
             values
         )
-        print(f"Inserted batch {i // batch_size + 1}")
+        print(f"MERGE batch {i // batch_size + 1}")
     conn.commit()
 
 if __name__ == "__main__":

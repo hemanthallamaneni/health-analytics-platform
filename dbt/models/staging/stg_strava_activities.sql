@@ -33,5 +33,6 @@ parsed AS (
         PARSE_JSON(raw_json):start_date_local::TIMESTAMP    AS start_date_local,
         loaded_at
     FROM raw
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY loaded_at DESC) = 1
 )
 SELECT * FROM parsed
