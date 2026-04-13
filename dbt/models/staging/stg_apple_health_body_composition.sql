@@ -29,7 +29,6 @@ parsed AS (
         raw_json,
         creation::TIMESTAMP AS created_at
     FROM raw
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY loaded_at DESC) = 1
 )
  
 SELECT * FROM parsed

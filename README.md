@@ -258,11 +258,11 @@ The mart table `DAILY_HEALTH_SUMMARY` contains one row per day anchored to Oura 
 
 - [x] Project scaffolded with uv and Python 3.12.13
 - [x] Snowflake warehouse configured with raw and mart schemas
-- [x] Oura sleep ingestion
+- [x] Oura sleep ingestion (MERGE upsert, full historical sync active)
 - [x] Apple Health heart rate ingestion
 - [x] Apple Health body composition ingestion (RENPHO via HealthKit)
-- [x] Strava activity ingestion with OAuth2 and incremental logic
-- [x] dbt staging models for all four sources
+- [x] Strava activity ingestion with OAuth2 and fully synced incremental logic
+- [x] dbt staging models for all four sources (hardened against duplicates)
 - [x] Unified daily health summary mart with forward-filled body metrics
 - [x] Unified pipeline runner script
 - [ ] dbt tests (not-null, unique, accepted values)
