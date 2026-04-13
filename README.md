@@ -1,277 +1,140 @@
 # Health Analytics Platform
 
-A personal health data pipeline that ingests, transforms, and analyzes data from Oura Ring, Apple Health (including RENPHO body composition), and Strava using a modern ELT stack.
+A longitudinal personal health data platform and methods portfolio investigating
+physiological nonstationarity in wearable sensor data.
 
-## Why this exists
+---
 
-Personal health data lives in siloed apps. Oura tracks sleep and recovery, Apple Health collects heart rate and biometrics, Strava captures workouts. Each app has its own dashboard, but none of them talk to each other — and none of them support cross-source questions like "how does sleep quality two nights before a long run correlate with run performance?"
+## Thesis
 
-This project consolidates all sources into a single warehouse, builds a unified daily metrics model, and creates the foundation for physiological modeling and analysis that no individual app supports natively.
+Commercial wearable algorithms compute recovery and readiness scores against a
+rolling baseline that assumes the underlying physiological signal is stationary
+within a window. This portfolio investigates what happens when that assumption
+fails — empirically, operationally, and predictively — across three connected
+projects.
 
-## Architecture
+---
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Source Systems                   │
-│                                                     │
-│   Oura API v2  •  Apple Health XML  •  Strava API   │
-│                 (incl. RENPHO via HealthKit)        │
-└────────────────────────┬────────────────────────────┘
-                         │
-                         │  Python ingestion scripts
-                         │  (incremental & full-refresh)
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│                 Snowflake Warehouse                 │
-│                                                     │
-│   RAW_OURA  •  RAW_APPLE_HEALTH  •  RAW_STRAVA      │
-└────────────────────────┬────────────────────────────┘
-                         │
-                         │  dbt transformation
-                         │  (staging → marts)
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│                   MART_HEALTH                       │
-│                                                     │
-│   DAILY_HEALTH_SUMMARY — one row per day            │
-│   Sleep · HRV · Heart Rate · Body Composition       │
-│   Workouts · Training Load                          │
-└─────────────────────────────────────────────────────┘
-```
+## Portfolio Structure
 
-## Tech stack
+| Project | Status | Description |
+|---|---|---|
+| [Project 1 — Physiological Nonstationarity Investigation](#project-1--physiological-nonstationarity-investigation) | ✅ Complete | Stationarity tests, change-point detection, detection latency analysis |
+| [Project 2 — Regime-Aware Operations Dashboard](#project-2--regime-aware-operations-dashboard) | 🔄 In Progress | Power BI dashboard with within-regime baseline computation |
+| [Project 3 — Training Load as a Predictor of Regime Transitions](#project-3--training-load-as-a-predictor-of-regime-transitions) | 🔄 In Progress | Does training load predict the direction of physiological regime shifts? |
 
-| Tool | Purpose |
-|------|---------|
-| Python 3.12.13 | Ingestion scripts |
-| pyenv | Python version management |
-| uv | Dependency and virtual environment management |
-| Snowflake | Analytical warehouse |
-| dbt | SQL transformation, staging, and marts |
-| Oura API v2 | Sleep, HRV, readiness data |
-| Apple Health XML | Heart rate and body composition via HealthKit |
-| RENPHO (via HealthKit) | Weight, BMI, body fat %, lean body mass |
-| Strava API v3 | Workout data with OAuth2 and incremental ingestion |
+---
 
-## Repository structure
+## Project 1 — Physiological Nonstationarity Investigation
+
+**[→ Full analysis and findings](analyses/physiological_nonstationarity/README.md)**
+
+Applied ADF and KPSS stationarity tests to 130 days of personal Oura Ring data
+across four signals: HRV, resting heart rate, sleep efficiency, and Oura's
+composite readiness score. HRV and resting HR are trend-stationary — exhibiting
+directional drift inconsistent with a fixed-mean baseline. Sleep efficiency and
+readiness score are stationary in this window.
+
+PELT change-point detection (RBF kernel) identified two discrete regime
+transitions, both physiologically annotated:
+
+| Date | Signal | Direction | Event |
+|---|---|---|---|
+| 2025-12-27 | Average HRV | ↓ 16.7% | Travel disruption — 3-week interstate stay |
+| 2026-02-27 | Resting HR | ↓ 9.3% | Marathon training block initiated |
+
+A 30-day rolling mean lagged PELT by 7 days on the HRV transition and failed to
+detect the resting HR transition entirely. This detection latency result is the
+quantitative justification for the regime-aware baseline approach in Project 2.
+
+![Nonstationarity Analysis](analyses/physiological_nonstationarity/results/nonstationarity_analysis.png)
+
+**Methods:** ADF · KPSS · PELT (ruptures, RBF kernel) · Detection latency
+analysis  
+**Stack:** Python · Snowflake · dbt · statsmodels · ruptures · matplotlib
+
+---
+
+## Project 2 — Regime-Aware Operations Dashboard
+
+*In progress.*
+
+Power BI dashboard operationalizing the Project 1 findings. Rather than computing
+signal baselines against a rolling global mean, baselines are computed within
+PELT-detected regimes — partitioning each signal's history at detected
+change-point boundaries before calculating reference statistics.
+
+The detection latency result from Project 1 — a naive rolling mean missing a
+real 4.54 bpm resting HR regime shift entirely — motivates this design decision
+quantitatively.
+
+**Methods:** Regime-aware baseline computation · Power BI · DAX · Snowflake  
+**Stack:** Power BI · Snowflake · dbt · Python
+
+---
+
+## Project 3 — Training Load as a Predictor of Regime Transitions
+
+*In progress.*
+
+Takes the annotated change-points from Project 1 as outcome variables and asks
+whether training load metrics in the preceding window — cumulative distance,
+acute:chronic workload ratio, elevation gain — were already signaling the coming
+regime transition. Moves from descriptive detection to predictive modeling.
+
+**Methods:** Time-lagged feature construction · logistic / ordinal regression ·
+Strava training load metrics  
+**Stack:** Python · Snowflake · dbt · scipy · statsmodels
+
+---
+
+## Data Infrastructure
+
+Four ingestion sources, all production-grade and running on a scheduled pipeline:
+
+| Source | Method | Schema |
+|---|---|---|
+| Oura Ring | REST API | `RAW_OURA` |
+| Apple Health | HealthKit XML export | `RAW_APPLE_HEALTH` |
+| RENPHO / HealthKit | HealthKit XML export | `RAW_APPLE_HEALTH` |
+| Strava | OAuth2 with auto-refresh | `RAW_STRAVA` |
+
+All sources land in Snowflake, transform through dbt staging models, and surface
+in a unified daily summary mart: `MART_HEALTH.DAILY_HEALTH_SUMMARY`.
+
+**Stack:** Python 3.12 · pyenv · uv · Snowflake · dbt · Ubuntu 22.04
+
+---
+
+## Repository Structure
 
 ```
 health-analytics-platform/
-├── pyproject.toml                        # Project metadata and dependencies
-├── uv.lock                               # Exact dependency versions
-├── .python-version                       # Python version pin (3.12.13)
-├── .env.example                          # Credential template — copy to .env
-├── run_pipeline.sh                       # Unified pipeline runner
-├── README.md
-├── ingestion/
-│   ├── oura/
-│   │   └── ingest_sleep.py               # Oura API — full historical data
-│   ├── apple_health/
-│   │   ├── ingest_heart_rate.py          # Apple Health XML — full history
-│   │   └── ingest_body_composition.py    # RENPHO body metrics via HealthKit
-│   └── strava/
-│       └── ingest_activities.py          # Strava OAuth2 — incremental
-├── dbt/
-│   ├── dbt_project.yml
-│   ├── macros/
-│   │   └── generate_schema_name.sql      # Schema naming override
-│   └── models/
-│       ├── staging/
-│       │   ├── stg_oura_sleep.sql
-│       │   ├── stg_apple_health_heart_rate.sql
-│       │   ├── stg_apple_health_body_composition.sql
-│       │   └── stg_strava_activities.sql
-│       └── marts/
-│           └── daily_health_summary.sql  # Unified daily metrics table
-├── data/                                 # Gitignored — local data only
-│   └── raw/
-│       └── apple_health/                 # Apple Health XML export
-├── docs/
-└── tests/
+├── ingestion/               # Python ingestion scripts (Oura, Apple Health, Strava)
+├── dbt/                     # dbt project — staging models and mart
+│   ├── models/
+│   │   ├── staging/
+│   │   └── marts/
+├── analyses/
+│   ├── physiological_nonstationarity/   # Project 1
+│   │   ├── analysis.py
+│   │   ├── README.md
+│   │   └── results/
+│   └── ...                              # Projects 2, 3 as added
+└── README.md
 ```
 
-## Environment setup
+---
 
-### Prerequisites
+## Background
 
-- Linux or macOS
-- pyenv with Python 3.12.13
-- uv for dependency management
-- Snowflake account (free tier sufficient)
-- Oura Ring with a personal access token
-- Strava account with an API application registered at strava.com/settings/api
+Built to support a research program in applied physiological monitoring — personal
+data as a methodological testbed for techniques relevant to healthcare workforce
+monitoring, clinical remote patient monitoring, and sports science. The n=1
+constraint is real and documented honestly in each analysis; the methods
+generalize to multi-subject cohorts and are framed as such in the research
+directions sections.
 
-### Installation
-
-```bash
-git clone https://github.com/hemanthallamaneni/health-analytics-platform.git
-cd health-analytics-platform
-pyenv local 3.12.13
-uv venv
-source .venv/bin/activate
-uv pip install -r pyproject.toml
-```
-
-### Credentials
-
-Copy `.env.example` to `.env` and fill in all values:
-
-```bash
-cp .env.example .env
-```
-
-Required fields:
-
-```
-SNOWFLAKE_ACCOUNT=
-SNOWFLAKE_USER=
-SNOWFLAKE_PASSWORD=
-SNOWFLAKE_WAREHOUSE=
-SNOWFLAKE_DATABASE=
-OURA_PAT=
-OURA_START_DATE=
-STRAVA_CLIENT_ID=
-STRAVA_CLIENT_SECRET=
-STRAVA_ACCESS_TOKEN=
-STRAVA_REFRESH_TOKEN=
-STRAVA_TOKEN_EXPIRES_AT=
-```
-
-For Strava, the access token, refresh token, and expiry are obtained via a one-time OAuth2 authorization flow. After that the script handles token refresh automatically on every run.
-
-### Snowflake setup
-
-The pipeline expects the following structure in Snowflake:
-
-- Database: `HEALTH_ANALYTICS`
-- Raw schemas: `RAW_OURA`, `RAW_APPLE_HEALTH`, `RAW_STRAVA`
-- Mart schema: `MART_HEALTH`
-
-To create these, run the following in a Snowflake worksheet:
-
-```sql
-CREATE DATABASE IF NOT EXISTS HEALTH_ANALYTICS;
-CREATE SCHEMA IF NOT EXISTS HEALTH_ANALYTICS.RAW_OURA;
-CREATE SCHEMA IF NOT EXISTS HEALTH_ANALYTICS.RAW_APPLE_HEALTH;
-CREATE SCHEMA IF NOT EXISTS HEALTH_ANALYTICS.RAW_STRAVA;
-CREATE SCHEMA IF NOT EXISTS HEALTH_ANALYTICS.MART_HEALTH;
-```
-
-### dbt setup
-
-```bash
-cd dbt
-dbt debug    # verify Snowflake connection
-dbt run      # build all models
-```
-
-## Running the pipeline
-
-### Unified runner (recommended)
-
-```bash
-./run_pipeline.sh
-```
-
-Runs in sequence:
-
-1. **Oura** — pulls full configurable history via MERGE upsert (automatic)
-2. **Strava** — fetches new activities via MERGE upsert (automatic, incremental)
-3. **Apple Health** — prompts before running. Press `Enter` if you have a fresh export, or `s` to skip
-4. **dbt** — refreshes all staging models and the daily summary mart
-
-### Individual scripts
-
-```bash
-source .venv/bin/activate
-
-python ingestion/oura/ingest_sleep.py
-python ingestion/strava/ingest_activities.py
-python ingestion/apple_health/ingest_heart_rate.py
-python ingestion/apple_health/ingest_body_composition.py
-
-cd dbt && dbt run
-```
-
-## Updating Apple Health data
-
-Apple Health has no API. Data is exported manually from the iPhone and re-ingested as a full refresh.
-
-**Step 1 — Export from iPhone:**
-
-1. Open the Health app
-2. Tap your profile picture → Export All Health Data
-3. Share the ZIP to your machine via AirDrop, email, or iCloud Drive
-
-**Step 2 — Replace the existing export:**
-
-```bash
-cd ~/work/personal/health-analytics-platform/data/raw/apple_health
-unzip ~/Downloads/export.zip -d apple_health_export_new
-rm -rf apple_health_export
-mv apple_health_export_new apple_health_export
-```
-
-**Step 3 — Re-ingest:**
-
-```bash
-source .venv/bin/activate
-python ingestion/apple_health/ingest_heart_rate.py
-python ingestion/apple_health/ingest_body_composition.py
-cd dbt && dbt run
-```
-
-RENPHO body composition data (weight, BMI, body fat %, lean body mass) syncs automatically from the RENPHO app into Apple Health and is captured in step 3 above. No separate RENPHO integration is needed.
-
-## Data sources and ingestion patterns
-
-| Source | Method | Pattern | Schema |
-|--------|--------|---------|--------|
-| Oura Ring | REST API (PAT auth) | MERGE upsert, full history | RAW_OURA |
-| Apple Health heart rate | XML export (HealthKit) | Full refresh on demand | RAW_APPLE_HEALTH |
-| RENPHO body composition | XML export (via HealthKit) | Full refresh on demand | RAW_APPLE_HEALTH |
-| Strava workouts | REST API (OAuth2) | MERGE upsert, incremental | RAW_STRAVA |
-
-## dbt model lineage
-
-```
-RAW_OURA.RAW_SLEEP
-    └── stg_oura_sleep (view)
-            └── daily_health_summary (table)
-
-RAW_APPLE_HEALTH.RAW_HEART_RATE
-    └── stg_apple_health_heart_rate (view)
-            └── daily_health_summary (table)
-
-RAW_APPLE_HEALTH.RAW_BODY_COMPOSITION
-    └── stg_apple_health_body_composition (view)
-            └── daily_health_summary (table)
-
-RAW_STRAVA.RAW_ACTIVITIES
-    └── stg_strava_activities (view)
-            └── daily_health_summary (table)
-```
-
-The mart table `DAILY_HEALTH_SUMMARY` contains one row per day anchored to Oura sleep dates. Body composition metrics are forward-filled across days without a scale measurement.
-
-## Current status
-
-- [x] Project scaffolded with uv and Python 3.12.13
-- [x] Snowflake warehouse configured with raw and mart schemas
-- [x] Oura sleep ingestion (MERGE upsert, full historical sync active)
-- [x] Apple Health heart rate ingestion
-- [x] Apple Health body composition ingestion (RENPHO via HealthKit)
-- [x] Strava activity ingestion with OAuth2 and fully synced incremental logic
-- [x] dbt staging models for all four sources (hardened against duplicates)
-- [x] Unified daily health summary mart with forward-filled body metrics
-- [x] Unified pipeline runner script
-- [ ] dbt tests (not-null, unique, accepted values)
-- [ ] Orchestration (scheduled runs)
-
-## Data privacy
-
-No health data, credentials, or personally identifiable information is committed to this repository. All files in `data/` are gitignored. Secrets live in a local `.env` file excluded from version control.
-
-## Author
-
-Hemanth Allamaneni · [github.com/hemanthallamaneni](https://github.com/hemanthallamaneni)
+**Author:** Hemanth Allamaneni  
+MS Applied Cognition and Neuroscience (HCI and Intelligent Systems), UT Dallas, 2025  
+[github.com/hemanthallamaneni](https://github.com/hemanthallamaneni)
