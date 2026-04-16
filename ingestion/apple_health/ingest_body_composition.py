@@ -25,12 +25,14 @@ RECORD_TYPES = [
     "HKQuantityTypeIdentifierBodyFatPercentage"
 ]
 
-XML_PATH = '/home/hemu/work/personal/health-analytics-platform/data/raw/apple_health/apple_health_export/export.xml'
-
-tree = ET.parse(XML_PATH)
-root = tree.getroot()
+XML_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', '..', 'data', 'raw', 'apple_health', 'apple_health_export', 'export.xml'
+)
 
 def fetch_body_composition_data():
+    tree = ET.parse(XML_PATH)
+    root = tree.getroot()
     records = []
     for record_type in RECORD_TYPES:
         for record in root.findall(f'Record[@type="{record_type}"]'):

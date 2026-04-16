@@ -18,10 +18,14 @@ SNOWFLAKE_PRIVATE_KEY_PATH = os.environ["SNOWFLAKE_PRIVATE_KEY_PATH"]
 SNOWFLAKE_WAREHOUSE = os.getenv("SNOWFLAKE_WAREHOUSE")
 SNOWFLAKE_DATABASE = os.getenv("SNOWFLAKE_DATABASE")
 
-tree = ET.parse('/home/hemu/work/personal/health-analytics-platform/data/raw/apple_health/apple_health_export/export.xml')
-root = tree.getroot()
+XML_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', '..', 'data', 'raw', 'apple_health', 'apple_health_export', 'export.xml'
+)
 
 def fetch_heart_rate_data():
+    tree = ET.parse(XML_PATH)
+    root = tree.getroot()
     heart_rate_records = []
     for record in root.findall('Record[@type="HKQuantityTypeIdentifierHeartRate"]'):
         heart_rate_records.append({
