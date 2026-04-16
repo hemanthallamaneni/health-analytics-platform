@@ -1,0 +1,133 @@
+# Metabase + Metadata Postgres stack
+# ---------------------------------------------------------------------------
+# Starts two containers:
+#   1. metabase           - the BI application (web UI on port 3000)
+#   2. metabase-postgres  - stores Metabase's internal state (users, dashboards)
+#
+# Snowflake is NOT in this file. Metabase connects to Snowflake as an
+# external data source, configured through the web UI after startup.
+#
+# Usage (run from this directory):
+#   docker compose up -d      # start in background
+#   docker compose logs -f    # watch logs
+#   docker compose down       # stop and remove containers (data persists in volumes)
+#   docker compose down -v    # stop and WIPE all data (careful)
+# ---------------------------------------------------------------------------
+ 
+services:
+  # -------------------------------------------------------------------------
+  # Metabase's metadata database
+  # Stores: user accounts, dashboard definitions, saved questions,
+  #         data source connection info, permissions, etc.
+  # Does NOT store your health data — that stays in Snowflake.
+  # -------------------------------------------------------------------------
+  metabase-postgres:
+    image: postgres:15-alpine
+    # `postgres:15-alpine` is a prebuilt Postgres 15 image based on Alpine Linux
+    # (Alpine is a minimal Linux distribution — keeps the container small).
+    # Docker will download this from Docker Hub the first time you run it.
+ 
+    container_name: metabase-postgres
+    # Explicit name so `docker ps` shows it clearly. Without this, Docker
+    # would autogenerate a name like "infra-metabase-postgres-1".
+ 
+    restart: unless-stopped
+    # If the container crashes or your machine reboots, Docker restarts it.
+    # Unless you explicitly `docker compose down`, it stays running.
+ 
+    environment:
+      POSTGRES_DB: metabase
+      POSTGRES_USER: metabase
+      POSTGRES_PASSWORD: metabase_local_dev_only
+      # These create the database and user that Metabase will connect to.
+      # Password is only accessible inside the Docker network — the port is
+      # not exposed to your host machine, so this is fine for local dev.
+      # For anything production-facing, this would come from a secrets file.
+ 
+    volumes:
+      - metabase_postgres_data:/var/lib/postgresql/data
+      # A Docker volume — persistent storage that survives container restarts.
+      # If you `docker compose down` and `up` again, your data is still there.
+      # Only `docker compose down -v` wipes it.
+ 
+    networks:
+      - metabase-net
+      # Attaches this container to a private network shared with Metabase.
+      # No port mapping to the host — this DB is invisible outside Docker.
+ 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metabase -d metabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # Tells Docker how to verify Postgres is actually ready to accept
+      # connections. Without this, Metabase might start before Postgres is
+      # ready and fail to connect on first boot.
+ 
+  # -------------------------------------------------------------------------
+  # Metabase application
+  # The BI tool itself — web UI, query engine, dashboard renderer.
+  # -------------------------------------------------------------------------
+  metabase:
+    image: metabase/metabase:latest
+    # Official Metabase image. `latest` pulls the newest stable release.
+    # In production you'd pin a specific version (e.g. metabase:v0.50.0)
+    # for reproducibility. For a portfolio project, latest is fine and
+    # you can pin once you've verified everything works.
+ 
+    container_name: metabase
+    restart: unless-stopped
+ 
+    ports:
+      - "3000:3000"
+      # Port mapping: "host_port:container_port"
+      # Inside the container, Metabase listens on 3000. This line says
+      # "expose container port 3000 to host port 3000" so your browser
+      # on localhost:3000 reaches Metabase.
+ 
+    environment:
+      # Tell Metabase to use Postgres for its metadata (default is H2,
+      # an embedded database that's not suitable for anything serious).
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: metabase
+      MB_DB_PASS: metabase_local_dev_only
+      MB_DB_HOST: metabase-postgres
+      # MB_DB_HOST is the hostname of the Postgres container. Docker's
+      # internal DNS resolves service names to container IPs automatically,
+      # so `metabase-postgres` here means "the container named
+      # metabase-postgres on our shared network."
+ 
+    volumes:
+      - metabase_data:/metabase.db
+      # Additional persistent storage for any Metabase runtime files.
+      # Most state goes to Postgres, but this volume covers edge cases.
+ 
+    networks:
+      - metabase-net
+ 
+    depends_on:
+      metabase-postgres:
+        condition: service_healthy
+      # Wait for the Postgres healthcheck to pass before starting Metabase.
+      # Without this, Metabase would start, fail to connect, and crash-loop
+      # for 30 seconds before Postgres is ready.
+ 
+# ---------------------------------------------------------------------------
+# Volumes: named, persistent storage managed by Docker
+# These survive `docker compose down` (only wiped by `down -v`)
+# ---------------------------------------------------------------------------
+volumes:
+  metabase_postgres_data:
+  metabase_data:
+ 
+# ---------------------------------------------------------------------------
+# Networks: private networks for container-to-container communication
+# Containers on the same network reach each other by service name.
+# ---------------------------------------------------------------------------
+networks:
+  metabase-net:
+    driver: bridge
+    # `bridge` is Docker's default network type for single-host setups.
+    # Creates an isolated virtual network that only our containers can use.
