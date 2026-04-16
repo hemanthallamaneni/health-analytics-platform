@@ -11,6 +11,13 @@
 # and is deferred to future work.
 
 import os
+import sys
+
+# TODO(audit H3): sys.path workaround removable once pyproject.toml declares
+# [build-system] and `uv sync` installs the ingestion package into the venv.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from ingestion.common.snowflake_auth import load_private_key
+
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
@@ -32,7 +39,7 @@ load_dotenv()
 
 conn = snowflake.connector.connect(
     user=os.environ["SNOWFLAKE_USER"],
-    password=os.environ["SNOWFLAKE_PASSWORD"],
+    private_key=load_private_key(os.environ["SNOWFLAKE_PRIVATE_KEY_PATH"]),
     account=os.environ["SNOWFLAKE_ACCOUNT"],
     warehouse=os.environ["SNOWFLAKE_WAREHOUSE"],
     database=os.environ["SNOWFLAKE_DATABASE"],
