@@ -1,4 +1,4 @@
-# dbt — Health Analytics Transformation Layer
+# dbt: Health Analytics Transformation Layer
 
 Transforms raw ingested data from Snowflake's raw schemas into a unified
 daily health summary mart and a regime-labeled analysis table derived from
@@ -14,7 +14,7 @@ Target database: `HEALTH_ANALYTICS`
 
 All models land in the `MART_HEALTH` schema. The `generate_schema_name`
 macro overrides dbt's default behavior of concatenating the target schema
-prefix — models resolve to `MART_HEALTH` directly rather than
+prefix; models resolve to `MART_HEALTH` directly rather than
 `{target_schema}_MART_HEALTH`.
 
 ---
@@ -37,7 +37,7 @@ dbt run --select mart_regime_labels
 
 ## Model Reference
 
-### Staging (views — `MART_HEALTH`)
+### Staging (views, `MART_HEALTH`)
 
 | Model | Source table | Description |
 |---|---|---|
@@ -47,9 +47,9 @@ dbt run --select mart_regime_labels
 | `stg_strava_activities` | `RAW_STRAVA.RAW_ACTIVITIES` | Parses JSON activity records, surfaces distance, kilojoules, elapsed time, elevation, sport type |
 
 Raw layer stores all JSON as `STRING`. `PARSE_JSON()` is called at the
-staging layer — this is intentional (documented in repo root CLAUDE.md).
+staging layer (intentional; documented in repo root CLAUDE.md).
 
-### Marts (tables — `MART_HEALTH`)
+### Marts (tables, `MART_HEALTH`)
 
 **`daily_health_summary`**  
 Unified daily grain. Joins all four staging models on `activity_date`.
@@ -82,8 +82,8 @@ land in `PUBLIC_MART_HEALTH` (or equivalent) rather than `MART_HEALTH`.
 
 ## Key Design Decisions
 
-- Raw layer is `STRING`, not `VARIANT` — `PARSE_JSON()` at staging
+- Raw layer is `STRING`, not `VARIANT`; `PARSE_JSON()` at staging
 - `long_sleep` filter via `ROW_NUMBER()` prevents nap contamination of the daily grain
 - Body composition forward-fill handles sparse RENPHO measurement cadence
-- RENPHO body fat stored as decimal (e.g. `0.113`) — corrected with a `CASE` multiplier in staging
+- RENPHO body fat stored as decimal (e.g. `0.113`), corrected with a `CASE` multiplier in staging
 - Strava ingestion is incremental; dbt staging reads the full current state

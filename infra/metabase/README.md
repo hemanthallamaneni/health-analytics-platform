@@ -1,4 +1,4 @@
-# Metabase — Self-Hosted BI Stack
+# Metabase: Self-Hosted BI Stack
 
 Self-hosted Metabase (Open Source edition) deployed via Docker Compose with a
 dedicated Postgres metadata store. Connects to Snowflake as a data source for
@@ -15,7 +15,7 @@ Browser (localhost:3000)
 └───────────────────────────┘
         ↓
 ┌───────────────────────────┐
-│  metabase-postgres        │  (internal only — no host port exposure)
+│  metabase-postgres        │  (internal only, no host port exposure)
 │  (application database:   │
 │   users, dashboards,      │
 │   connection settings)    │
@@ -67,7 +67,16 @@ Metabase Open Source edition does not support declarative database
 provisioning via config file (that's a Pro feature). Initial setup is done
 through the web UI on first launch.
 
-### Step 1 — Admin account
+> **Container user note:** The Metabase container runs as root. This means
+> key pair files volume-mounted into the container are readable without
+> permission adjustments, which is why key auth works out of the box.
+
+> **After container recreation:** If you run `docker compose down -v` and
+> restart, all Metabase state (admin account, Snowflake connection, dashboards)
+> is wiped. Repeat Steps 1 and 2 below to restore. Your actual health data
+> in Snowflake is unaffected.
+
+### Step 1: Admin account
 
 Metabase's welcome screen asks for:
 - Preferred language
@@ -75,9 +84,9 @@ Metabase's welcome screen asks for:
 - Company name (enter anything, e.g. "Personal")
 
 This creates the local admin user. Credentials are stored in the metadata
-Postgres — only you have access.
+Postgres. Only you have access.
 
-### Step 2 — Add Snowflake as a data source
+### Step 2: Add Snowflake as a data source
 
 When prompted to "Add your data," select **Snowflake**.
 
@@ -90,7 +99,7 @@ Fill in the connection form using values from your repo-level `.env`:
 
 | Metabase field | Value |
 |---|---|
-| Display name | `Snowflake — Health Analytics` |
+| Display name | `Snowflake - Health Analytics` |
 | Account name | value of `SNOWFLAKE_ACCOUNT` in `.env` |
 | Warehouse | value of `SNOWFLAKE_WAREHOUSE` in `.env` |
 | Database name | value of `SNOWFLAKE_DATABASE` in `.env` |
@@ -109,7 +118,7 @@ Click **Connect database**. Metabase will run a sync to discover tables in
 `MART_HEALTH`. Once sync completes, `MART_REGIME_LABELS` and
 `DAILY_HEALTH_SUMMARY` will be visible in the data browser.
 
-### Step 3 — Skip usage stats opt-in
+### Step 3: Skip usage stats opt-in
 
 Your choice. Neither option affects functionality.
 
@@ -127,13 +136,13 @@ docker compose ps             # check container health
 
 ## Persistence
 
-All Metabase state — user accounts, dashboards, questions, the Snowflake
-connection config — lives in the `metabase_postgres_data` Docker volume.
+All Metabase state (user accounts, dashboards, questions, Snowflake connection
+config) lives in the `metabase_postgres_data` Docker volume.
 Stopping and restarting containers (even after a machine reboot) preserves
 everything. Only `docker compose down -v` wipes state.
 
 If the metadata volume ever gets wiped, re-running Step 2 above restores the
-Snowflake connection in ~2 minutes. No permanent data loss — your actual
+Snowflake connection in ~2 minutes. No permanent data loss: your actual
 health data is in Snowflake, untouched.
 
 ## Backup (Optional)
@@ -168,7 +177,7 @@ different host port (e.g. `"3001:3000"`).
 
 **Snowflake connection fails in Metabase**
 - Verify credentials work independently: `python -c "import snowflake.connector; ..."` or via dbt
-- Check the `Account name` field format — Snowflake account identifiers look like `abc12345.us-east-1` (no `.snowflakecomputing.com` suffix)
+- Check the `Account name` field format: Snowflake account identifiers look like `abc12345.us-east-1` (no `.snowflakecomputing.com` suffix)
 - Confirm the warehouse is not suspended in Snowflake UI
 
 **Can't reach Metabase from browser**
@@ -185,7 +194,7 @@ docker compose logs metabase | tail -50
 
 ## Why This Stack
 
-- **Metabase OSS** — free, self-hostable, Snowflake-native with a drag-and-drop BI paradigm that transfers directly to Power BI for stack portability
-- **Postgres for metadata** — production pattern (H2 default is not recommended for persistent work)
-- **Docker Compose** — single-command reproducibility; anyone cloning this repo can run the stack identically
-- **Internal-only metadata exposure** — least-privilege pattern; no reason to expose an application's internal database to the host network
+- **Metabase OSS**: free, self-hostable, Snowflake-native with a drag-and-drop BI paradigm that transfers directly to Power BI for stack portability
+- **Postgres for metadata**: production pattern (H2 default is not recommended for persistent work)
+- **Docker Compose**: single-command reproducibility; anyone cloning this repo can run the stack identically
+- **Internal-only metadata exposure**: least-privilege pattern; no reason to expose an application's internal database to the host network
