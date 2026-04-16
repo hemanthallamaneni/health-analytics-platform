@@ -20,8 +20,8 @@ projects.
 | Project | Status | Description |
 |---|---|---|
 | [Project 1 — Physiological Nonstationarity Investigation](#project-1--physiological-nonstationarity-investigation) | ✅ Complete | Stationarity tests, change-point detection, detection latency analysis |
-| [Project 2 — Regime-Aware Operations Dashboard](#project-2--regime-aware-operations-dashboard) | 🔄 In Progress | Power BI dashboard with within-regime baseline computation |
-| [Project 3 — Training Load as a Predictor of Regime Transitions](#project-3--training-load-as-a-predictor-of-regime-transitions) | 🔄 In Progress | Does training load predict the direction of physiological regime shifts? |
+| [Project 2 — Regime-Aware Operations Dashboard](#project-2--regime-aware-operations-dashboard) | 🔄 In Progress | Self-hosted Metabase dashboard with within-regime baseline computation |
+| [Project 3 — Training Load as a Predictor of Regime Transitions](#project-3--training-load-as-a-predictor-of-regime-transitions) | 📋 Queued | Does training load predict the direction of physiological regime shifts? |
 
 ---
 
@@ -59,23 +59,24 @@ analysis
 
 *In progress.*
 
-Power BI dashboard operationalizing the Project 1 findings. Rather than computing
-signal baselines against a rolling global mean, baselines are computed within
-PELT-detected regimes — partitioning each signal's history at detected
-change-point boundaries before calculating reference statistics.
+Self-hosted Metabase dashboard operationalizing the Project 1 findings. Rather
+than computing signal baselines against a rolling global mean, baselines are
+computed within PELT-detected regimes — partitioning each signal's history at
+detected change-point boundaries before calculating reference statistics.
 
 The detection latency result from Project 1 — a naive rolling mean missing a
 real 4.54 bpm resting HR regime shift entirely — motivates this design decision
-quantitatively.
+quantitatively. Power BI equivalent DAX measures are documented in
+`analyses/regime_dashboard/power_bi_equivalent/` as a stack portability reference.
 
-**Methods:** Regime-aware baseline computation · Power BI · DAX · Snowflake  
-**Stack:** Power BI · Snowflake · dbt · Python
+**Methods:** Regime-aware baseline computation · Metabase · Snowflake  
+**Stack:** Metabase (Docker) · Snowflake · dbt · Python
 
 ---
 
 ## Project 3 — Training Load as a Predictor of Regime Transitions
 
-*In progress.*
+*Queued.*
 
 Takes the annotated change-points from Project 1 as outcome variables and asks
 whether training load metrics in the preceding window — cumulative distance,

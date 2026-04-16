@@ -185,7 +185,7 @@ docker compose logs metabase | tail -50
 
 ## Why This Stack
 
-- **Metabase OSS** — free, Snowflake-native, drag-and-drop BI paradigm that transfers conceptually to Power BI for future PL-300 preparation
+- **Metabase OSS** — free, self-hostable, Snowflake-native with a drag-and-drop BI paradigm that transfers directly to Power BI for stack portability
 - **Postgres for metadata** — production pattern (H2 default is not recommended for persistent work)
 - **Docker Compose** — single-command reproducibility; anyone cloning this repo can run the stack identically
 - **Internal-only metadata exposure** — least-privilege pattern; no reason to expose an application's internal database to the host network
