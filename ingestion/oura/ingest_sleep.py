@@ -1,9 +1,15 @@
 import os
+import sys
 import json
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
 import snowflake.connector
+
+# TODO(audit H3): sys.path workaround removable once pyproject.toml declares
+# [build-system] and `uv sync` installs the ingestion package into the venv.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from ingestion.common.snowflake_auth import load_private_key
 
 load_dotenv()
 
@@ -11,7 +17,7 @@ OURA_PAT = os.getenv("OURA_PAT")
 OURA_START_DATE = os.getenv("OURA_START_DATE", "2024-01-01")
 SNOWFLAKE_ACCOUNT = os.getenv("SNOWFLAKE_ACCOUNT")
 SNOWFLAKE_USER = os.getenv("SNOWFLAKE_USER")
-SNOWFLAKE_PASSWORD = os.getenv("SNOWFLAKE_PASSWORD")
+SNOWFLAKE_PRIVATE_KEY_PATH = os.environ["SNOWFLAKE_PRIVATE_KEY_PATH"]
 SNOWFLAKE_WAREHOUSE = os.getenv("SNOWFLAKE_WAREHOUSE")
 SNOWFLAKE_DATABASE = os.getenv("SNOWFLAKE_DATABASE")
 
@@ -50,7 +56,7 @@ def write_to_snowflake(records):
     conn = snowflake.connector.connect(
         account=SNOWFLAKE_ACCOUNT,
         user=SNOWFLAKE_USER,
-        password=SNOWFLAKE_PASSWORD,
+        private_key=load_private_key(SNOWFLAKE_PRIVATE_KEY_PATH),
         warehouse=SNOWFLAKE_WAREHOUSE,
         database=SNOWFLAKE_DATABASE,
         schema="RAW_OURA"
