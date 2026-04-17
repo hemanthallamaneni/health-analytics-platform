@@ -69,6 +69,13 @@ data source for the Project 2 Metabase dashboard.
 > Regime boundaries are hardcoded from PELT output. Do not modify without
 > re-running `analyses/physiological_nonstationarity/analysis.py`.
 
+**`mart_training_load_features`**  
+Daily training-load feature table built on `mart_regime_labels`. Computes
+rolling 7-day, 14-day, and 28-day window aggregates (distance, elapsed time,
+kilojoules, workout-day count) and acute-to-chronic workload ratios (ACWR)
+for distance and elapsed time. Used as the data source for Project 3's
+training-load characterization of regime transitions.
+
 ---
 
 ## Macros

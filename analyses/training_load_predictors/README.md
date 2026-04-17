@@ -1,6 +1,8 @@
-# Training Load as Context for Regime Transitions
+# Training Load as a Predictor of Regime Transitions
 
-## Executive summary
+**Status:** Complete — analysis executed April 2026; results in `results/`
+
+## Executive Summary
 
 This analysis investigates whether the two PELT-detected regime transitions identified in Project 1 (HRV: 2025-12-28; resting HR: 2026-02-28) share a common training-load signature. They do not. The two transitions occurred under markedly different training-load conditions: the HRV transition followed a 28-day period of zero training (a travel-related interruption), while the resting-HR transition followed an acute training-load spike with an acute-to-chronic workload ratio (ACWR) at the 100th percentile of all 14-day windows in the dataset. The interpretation is that the two regime shifts reflect distinct underlying mechanisms — one consistent with detraining/recovery, one consistent with overload — rather than a single training-load process.
 
@@ -73,22 +75,24 @@ Neither reaches conventional significance thresholds, and they cannot — with n
 
 The two regime transitions occurred under qualitatively different training-load conditions:
 
-- **HRV transition (2025-12-28).** Preceded by 28 days of zero training. The user has independently identified this period as travel-related (San Ramon trip). The HRV regime shift in this case is consistent with a detraining or post-travel autonomic response.
+- **HRV transition (2025-12-28).** Preceded by 28 days of zero training. This period coincides with a documented travel event (interstate stay in San Ramon, CA). The HRV regime shift is consistent with a detraining or post-travel autonomic response.
 - **RHR transition (2026-02-28).** Preceded by an acute training-load spike (ACWR distance = 4.0, the dataset maximum). This is consistent with an overload-driven cardiovascular adaptation or accumulated-fatigue response.
 
 A single mechanism (e.g., "training load drives transitions") does not fit. The two transitions appear to reflect distinct physiological processes that share only the property of being detectable as nonstationarities. This is consistent with the Project 1 framing of regime structure as a methodological observation about the data, not a claim about a unified causal mechanism.
 
-See `results/feature_distributions.png` for the per-feature comparison of pre-transition values against the full distribution.
+![Feature Distributions](results/feature_distributions.png)
+
+*Per-feature comparison of 14-day pre-transition training-load values (dashed vertical lines) against the full distribution of all rolling 14-day windows in the dataset. The pre-RHR transition window (orange) shows ACWR distance at the 100th percentile; the pre-HRV transition window (red) shows zero load across all cumulative measures.*
 
 ## Limitations
 
 - **n = 2 transitions.** This is the dominant constraint. No claim in this analysis generalizes beyond these two transitions in this dataset. The methodological pattern is what carries forward; the substantive finding is illustrative.
 - **Single-subject data.** All observations are from one individual. Between-individual heterogeneity in training-load response is well-documented and is not addressed here.
 - **Rolling-window dependence.** Adjacent 14-day windows share 13 days of underlying data. The 116 comparison windows are not statistically independent. This violates the exchangeability assumption underlying the permutation test and biases p-values toward zero. The percentile rank reporting is unaffected.
-- **Activity coding.** Days without a logged Strava activity are coded as zero training load. This conflates "no workout occurred" with "no workout was logged." For this dataset the two are believed to be equivalent (the user's primary endurance training is logged on Strava), but this assumption is documented rather than verified.
-- **ACWR availability.** ACWR requires a complete 28-day chronic window with non-zero baseline. The pre-HRV transition window failed both conditions (the user's data window starts only 33 days before the transition, and the chronic baseline was zero), so the most discriminating feature could not be computed for that transition. This is an honest data limitation, not a methodological choice.
+- **Activity coding.** Days without a logged Strava activity are coded as zero training load. This conflates "no workout occurred" with "no workout was logged." For this dataset the two are believed to be equivalent (primary endurance training is logged on Strava), but this assumption is documented rather than verified.
+- **ACWR availability.** ACWR requires a complete 28-day chronic window with non-zero baseline. The pre-HRV transition window failed both conditions (the data window starts only 33 days before the transition, and the chronic baseline was zero), so the most discriminating feature could not be computed for that transition. This is an honest data limitation, not a methodological choice.
 
-## What I'd do next
+## Research Directions
 
 - **Extend the data window.** Five months is too short to characterize regime structure robustly. Three years of historical Strava and Oura data would likely surface 6–10 transitions, enough to begin distinguishing transition typologies (overload-driven vs. detraining-driven vs. unexplained).
 - **Couple with sleep and recovery features.** The current analysis uses Strava load only. Adding sleep duration, sleep efficiency, and Oura readiness as pre-transition features would test whether transitions are predicted better by the combination than by training load alone.

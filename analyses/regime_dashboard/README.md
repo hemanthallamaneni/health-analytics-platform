@@ -1,5 +1,7 @@
 # Project 2: Regime-Aware Dashboard
 
+**Status:** Data transformation layer complete; dashboard UI panels in final construction
+
 ## Executive Summary
 
 Project 2 operationalizes the findings from Project 1 in a self-hosted Metabase
@@ -53,9 +55,28 @@ excluded from version control (health data policy); regenerate it by querying
 
 ## Results
 
-Dashboard in progress. Metabase stack is running at `localhost:3000` via
-`infra/metabase/`. The `mart_regime_labels` dbt model is complete and queryable.
-Dashboard panels are under construction.
+### Complete
+
+The data transformation layer is production-ready:
+
+- **`mart_regime_labels` dbt model:** Complete and queryable in Snowflake. Extends
+  `DAILY_HEALTH_SUMMARY` with per-row regime labels and within-regime descriptive
+  statistics (mean, SD, min, max, ±1 SD bands) for all four signals.
+- **Regime boundary verification:** PELT-detected boundaries confirmed against
+  Project 1 output; regime assignments validated across the full observation window.
+- **Power BI equivalent specification:** DAX measures, connector setup, and visual
+  design notes documented in `power_bi_equivalent/` as a stack portability reference
+  for enterprise BI environments.
+- **Metabase infrastructure:** Self-hosted stack running via Docker Compose at
+  `infra/metabase/`, with Postgres metadata store and Snowflake native connector.
+
+[View dashboard export (PDF)](screenshots/regime_dashboard.pdf)
+
+### In Progress
+
+Metabase dashboard panel construction: time-series plots with regime shading
+and within-regime mean ± 1 SD bands, regime summary table, and detection
+latency callout card.
 
 ## Limitations
 
@@ -76,11 +97,11 @@ quantify.
 scheduled exports without the paid tier. Suitable for a personal analytics
 portfolio; not production-grade for multi-user or clinical contexts.
 
-## What Next
+## Research Directions
 
 - Complete the three Metabase dashboard panels (time-series, regime summary
   table, detection latency callout)
-- Power BI equivalent DAX measures and connector documentation in
-  `power_bi_equivalent/` as a stack portability reference
 - Automate Snowflake connection provisioning via Metabase REST API to make
   the stack fully declarative on first boot
+- Implement dynamic regime re-detection: re-run PELT on new data and update
+  regime boundaries in the dbt model without manual intervention

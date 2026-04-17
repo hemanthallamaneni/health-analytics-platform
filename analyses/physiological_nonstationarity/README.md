@@ -29,7 +29,7 @@ Commercial wearable platforms (including Oura) compute readiness and recovery sc
 | Property | Value |
 |---|---|
 | Source | Oura Ring Gen3 (personal device) |
-| Date range | 2025-11-25 → 2026-04-11 |
+| Date range | 2025-11-25 → present (analysis run April 2026) |
 | N | 130 daily observations |
 | Missing values | 0 across all four signals |
 | Signals | Average HRV (ms), Lowest Heart Rate (bpm), Sleep Efficiency (%), Readiness Score (0–100) |
@@ -118,7 +118,7 @@ This section documents the analytical extensions this work motivates: immediate 
 
 **Population-level nonstationarity.** The n=1 limitation here is real but not fatal to the research program. The methodological contribution (joint ADF/KPSS testing combined with PELT change-point detection as a framework for characterizing physiological regime structure) generalizes directly to multi-subject datasets. Applied to a cohort of endurance athletes across a competitive season, the same pipeline would produce regime maps that could be compared across individuals, correlated with performance outcomes, and used to assess the validity of population-normalized wearable baselines. This is the scale at which the critique of commercial algorithms becomes actionable for device manufacturers and clinical researchers.
 
-**Occupational and healthcare workforce applications.** The stationarity failure documented here is not unique to endurance athletes. Healthcare workers under shift-pattern scheduling, rotating night shifts, or high-acuity event exposure are subject to analogous regime transitions in HRV and resting HR. A regime-aware monitoring framework applied in that context (where the stakes of misclassifying a physiological state are higher) has direct clinical and operational relevance. Synthetic data generation using the regime parameters estimated here would allow proof-of-concept modeling without requiring access to sensitive workforce health data, which is the approach scoped in Project 5 of this portfolio.
+**Occupational and healthcare workforce applications.** The stationarity failure documented here is not unique to endurance athletes. Healthcare workers under shift-pattern scheduling, rotating night shifts, or high-acuity event exposure are subject to analogous regime transitions in HRV and resting HR. A regime-aware monitoring framework applied in that context (where the stakes of misclassifying a physiological state are higher) has direct clinical and operational relevance. Synthetic data generation using the regime parameters estimated here would allow proof-of-concept modeling without requiring access to sensitive workforce health data.
 
 ---
 

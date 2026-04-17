@@ -1,7 +1,7 @@
 [project]
 name = "health-analytics-platform"
 version = "0.1.0"
-description = "Personal health analytics platform: ingestion, transformation, and analysis of Oura, Apple Health, and HealthFit data using Python, dbt, and Snowflake."
+description = "Longitudinal personal health data platform investigating physiological nonstationarity in wearable sensor data. Ingestion, transformation, and analysis of Oura, Apple Health, and Strava data using Python, dbt, and Snowflake."
 authors = [
     { name = "Hemanth Allamaneni", email = "109781897+hemanthallamaneni@users.noreply.github.com" }
 ]
