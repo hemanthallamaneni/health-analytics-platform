@@ -90,7 +90,7 @@ where $u_t$ represents independent and identically distributed variables with ze
 ### 5.2 Pruned Exact Linear Time (PELT) Segmentation
 We apply the PELT algorithm retrospectively to identify precise optimal bounds of shifting physiological regimes. Unlike rolling standard deviation bounds, PELT solves the discrete segmentation penalty problem exactly. For a data sequence $y_{1:N}$, the goal is to identify a set of changepoints $\tau = (\tau_1, \tau_2, ..., \tau_m)$ that minimizes the cost function:
 
-$$ \min_{\tau} \left\{ \sum_{i=1}^{m} C(y_{(\tau_{i-1}+1):\tau_i}) + m p \right\} $$
+$$ \min_{\tau} \left[ \sum_{i=1}^{m} C(y_{(\tau_{i-1}+1):\tau_i}) + m p \right] $$
 
 where $C$ is a cost function (using a Radial Basis Function Gaussian Kernel) that measures the variance within each segment, $m$ represents the number of change points, and $p$ corresponds to a linear penalty term (configured to $p=10$) inserted to linearly penalize extreme parameter volatility and constrain the output to biologically valid distinct phases.
 
