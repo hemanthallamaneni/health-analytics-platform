@@ -6,15 +6,19 @@ cd "$(dirname "$0")"
 source .venv/bin/activate
 
 echo ""
-echo "[1/4] Oura sleep ingestion..."
+echo "[1/5] Oura sleep ingestion..."
 python ingestion/oura/ingest_sleep.py
 
 echo ""
-echo "[2/4] Strava activity ingestion..."
+echo "[2/5] Strava activity ingestion..."
 python ingestion/strava/ingest_activities.py
 
 echo ""
-echo "[3/4] Apple Health ingestion..."
+echo "[3/5] Strava streams ingestion..."
+python ingestion/strava/ingest_streams.py
+
+echo ""
+echo "[4/5] Apple Health ingestion..."
 echo "NOTE: Apple Health requires a manual export from iPhone."
 echo "If you have a fresh export, press Enter to ingest. Otherwise press 's' to skip."
 read -r response
@@ -26,7 +30,7 @@ else
 fi
 
 echo ""
-echo "[4/4] Running dbt transformations..."
+echo "[5/5] Running dbt transformations..."
 cd dbt
 dbt run
 

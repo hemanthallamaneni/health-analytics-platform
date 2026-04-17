@@ -1,18 +1,16 @@
 version: 2
-
 sources:
   - name: raw_oura
     database: "{{ target.database }}"
     schema: RAW_OURA
     tables:
       - name: raw_sleep
-
   - name: raw_strava
     database: "{{ target.database }}"
     schema: RAW_STRAVA
     tables:
       - name: raw_activities
-
+      - name: raw_streams
   - name: raw_apple_health
     database: "{{ target.database }}"
     schema: RAW_APPLE_HEALTH
