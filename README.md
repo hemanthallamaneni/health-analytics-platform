@@ -45,7 +45,7 @@ projects.
 | Project | Status | Description |
 |---|---|---|
 | [Project 1: Physiological Nonstationarity Investigation](#project-1-physiological-nonstationarity-investigation) | ✅ Complete | Stationarity tests, change-point detection, detection latency analysis |
-| [Project 2: Regime-Aware Operations Dashboard](#project-2-regime-aware-operations-dashboard) | 🔄 Data layer complete; dashboard panels in construction | Self-hosted Metabase dashboard with within-regime baseline computation |
+| [Project 2: Regime-Aware Operations Dashboard](#project-2-regime-aware-operations-dashboard) | ✅ Data layer complete; dashboard panels in construction | Self-hosted Metabase dashboard with within-regime baseline computation |
 | [Project 3: Training Load as a Predictor of Regime Transitions](#project-3-training-load-as-a-predictor-of-regime-transitions) | ✅ Complete | Training-load characterization of regime transition heterogeneity |
 
 ---
