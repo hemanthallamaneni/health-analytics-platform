@@ -101,6 +101,8 @@ services:
  
     volumes:
       - metabase_data:/metabase.db
+      # Mount host Snowflake key pair into container (read-only)
+      - /home/hemu/.config/snowflake/keys:/snowflake-keys:ro
       # Additional persistent storage for any Metabase runtime files.
       # Most state goes to Postgres, but this volume covers edge cases.
  
