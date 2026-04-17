@@ -14,7 +14,7 @@ Commercial wearable platforms (including Oura) compute readiness and recovery sc
 
 ## Method
 
-**Stationarity testing:** ADF (Augmented Dickey-Fuller) and KPSS (Kwiatkowski-Phillips-Schmidt-Shin) tests are applied jointly to each signal. Their null hypotheses are complementary: ADF tests for a unit root (H0: non-stationary), KPSS tests for level stationarity (H0: stationary). Agreement between them narrows the inference. When both tests reject simultaneously, the series is trend-stationary: stationary around a deterministic trend rather than a fixed mean. This distinction matters because rolling-window baselines that assume a fixed mean will systematically misrepresent trend-stationary signals.
+**Stationarity testing:** ADF (Augmented Dickey-Fuller) and KPSS (Kwiatkowski-Phillips-Schmidt-Shin) tests are applied jointly to each signal. Their null hypotheses are complementary: ADF tests for a unit root (H0: non-stationary), KPSS tests for level stationarity (H0: stationary). Agreement between them narrows the inference. When both tests reject simultaneously, the series is trend-stationary (stationary around a deterministic trend rather than a fixed mean). This distinction matters because rolling-window baselines that assume a fixed mean will systematically misrepresent trend-stationary signals.
 
 **Batch change-point detection (PELT):** Pruned Exact Linear Time (PELT) with an RBF kernel cost function is applied independently to each signal. Minimum segment size is set to 14 days (two weeks as the minimum meaningful physiological regime). Penalty parameter pen=10 was retained because the resulting segmentation is sparse and physiologically interpretable. PELT is a batch offline method: it has access to the full time series and identifies regime boundaries retrospectively.
 
@@ -28,7 +28,7 @@ Commercial wearable platforms (including Oura) compute readiness and recovery sc
 
 | Property | Value |
 |---|---|
-| Source | Oura Ring Gen3 (personal device) |
+| Source | Oura Ring Gen 4 (personal device) |
 | Date range | 2025-11-25 → present (analysis run April 2026) |
 | N | 130 daily observations |
 | Missing values | 0 across all four signals |

@@ -16,17 +16,17 @@ physiological nonstationarity in wearable sensor data.
 Commercial wearable algorithms assume that each user's physiological signals are
 stationary within a rolling window, computing readiness and recovery scores
 against a slowly adapting baseline. This research program tests that assumption
-empirically on continuous data from an Oura Ring, Apple Watch, and Strava,
+empirically on continuous data from an Oura Ring, Apple Watch Series 7, and Strava,
 finding that heart rate variability and resting heart rate are trend-stationary
-rather than stationary — they drift directionally across physiological regimes
+rather than stationary; they drift directionally across physiological regimes
 in ways a rolling mean either detects late or misses entirely. Two discrete
 regime transitions are identified via PELT change-point detection, each
 physiologically annotated: one consistent with environmental disruption, one
 consistent with cardiovascular adaptation under sustained aerobic training. A
 regime-aware baseline framework and a training-load characterization of
 transition heterogeneity complete the three-project arc. The full analytical
-stack — from raw API ingestion to materialized data mart to statistical analysis
-— is documented, reproducible, and publicly available.
+stack, from raw API ingestion to materialized data mart to statistical analysis,
+is documented, reproducible, and publicly available.
 
 ---
 
@@ -116,8 +116,8 @@ signature. They do not. The HRV transition followed 28 days of zero training
 (travel-related interruption), while the resting HR transition followed an acute
 training-load spike with an acute-to-chronic workload ratio (ACWR) at the 100th
 percentile of all 14-day windows in the dataset. The two regime shifts reflect
-distinct underlying mechanisms — one consistent with detraining, one consistent
-with overload — rather than a single training-load process.
+distinct underlying mechanisms (one consistent with detraining, one consistent
+with overload) rather than a single training-load process.
 
 ![Feature Distributions](analyses/training_load_predictors/results/feature_distributions.png)
 

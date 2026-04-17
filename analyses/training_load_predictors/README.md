@@ -1,10 +1,10 @@
 # Training Load as a Predictor of Regime Transitions
 
-**Status:** Complete — analysis executed April 2026; results in `results/`
+**Status:** Complete (analysis executed April 2026; results in `results/`)
 
 ## Executive Summary
 
-This analysis investigates whether the two PELT-detected regime transitions identified in Project 1 (HRV: 2025-12-28; resting HR: 2026-02-28) share a common training-load signature. They do not. The two transitions occurred under markedly different training-load conditions: the HRV transition followed a 28-day period of zero training (a travel-related interruption), while the resting-HR transition followed an acute training-load spike with an acute-to-chronic workload ratio (ACWR) at the 100th percentile of all 14-day windows in the dataset. The interpretation is that the two regime shifts reflect distinct underlying mechanisms — one consistent with detraining/recovery, one consistent with overload — rather than a single training-load process.
+This analysis investigates whether the two PELT-detected regime transitions identified in Project 1 (HRV: 2025-12-28; resting HR: 2026-02-28) share a common training-load signature. They do not. The two transitions occurred under markedly different training-load conditions: the HRV transition followed a 28-day period of zero training (a travel-related interruption), while the resting-HR transition followed an acute training-load spike with an acute-to-chronic workload ratio (ACWR) at the 100th percentile of all 14-day windows in the dataset. The interpretation is that the two regime shifts reflect distinct underlying mechanisms (one consistent with detraining/recovery, one consistent with overload) rather than a single training-load process.
 
 ## Motivation
 
@@ -40,7 +40,7 @@ Two analyses per feature:
 
 - 130 daily observations from 2025-11-25 to 2026-04-11
 - Source: `mart_health.mart_training_load_features` (Snowflake), built from Project 2's regime-annotated daily mart
-- 39 of 130 days had logged Strava activity (30%). Cumulative kilojoules populated on 23 days (59% of activity days), reflecting that Strava computes kJ from power data, which is rarely available for running activities — kJ is treated as a secondary feature only.
+- 39 of 130 days had logged Strava activity (30%). Cumulative kilojoules populated on 23 days (59% of activity days), reflecting that Strava computes kJ from power data, which is rarely available for running activities (kJ is treated as a secondary feature only).
 - Regime boundaries verified directly from `mart_regime_labels` rather than carried forward from prior session notes.
 
 ## Results
@@ -56,9 +56,9 @@ Two analyses per feature:
 | ACWR (distance) | undefined | — | **4.00** | **100%** |
 | ACWR (elapsed time) | undefined | — | 3.29 | 86% |
 
-The percentile ranks for the cumulative measures are deceptively middle-of-distribution — the comparison distribution is heavily right-skewed (median = 0 for all four cumulative measures), reflecting that the dataset spans periods of high and low training density and that more than half of all 14-day windows contain no logged activity.
+The percentile ranks for the cumulative measures are deceptively middle-of-distribution. The comparison distribution is heavily right-skewed (median = 0 for all four cumulative measures), reflecting that the dataset spans periods of high and low training density and that more than half of all 14-day windows contain no logged activity.
 
-The discriminating signal is the ACWR. The pre-RHR transition window had an acute distance ratio of 4.0 — the highest in the entire dataset, and well above the 1.5 sports-science threshold. The pre-HRV transition window had no defined ACWR because the 28-day chronic baseline was zero.
+The discriminating signal is the ACWR. The pre-RHR transition window had an acute distance ratio of 4.0, the highest in the entire dataset, and well above the 1.5 sports-science threshold. The pre-HRV transition window had no defined ACWR because the 28-day chronic baseline was zero.
 
 ### Permutation test results
 
@@ -69,7 +69,7 @@ P-values for ACWR features (the only features with discriminating signal):
 | ACWR (distance) | pre-RHR vs comparison | 0.142 | 1 | 45 |
 | ACWR (elapsed time) | pre-RHR vs comparison | 0.154 | 1 | 49 |
 
-Neither reaches conventional significance thresholds, and they cannot — with n=1 in the test group, the test geometry caps achievable evidence regardless of effect size. P-values are reported for transparency but the descriptive percentile rank is the more defensible quantitative claim.
+Neither reaches conventional significance thresholds, and they cannot (with n=1 in the test group, the test geometry caps achievable evidence regardless of effect size). P-values are reported for transparency but the descriptive percentile rank is the more defensible quantitative claim.
 
 ### Interpretation
 
@@ -112,10 +112,10 @@ uv run python analyses/training_load_predictors/analysis.py
 ```
 
 Outputs land in `analyses/training_load_predictors/results/`:
-- `descriptive_summary.csv` — per-feature percentile ranks
-- `permutation_results.csv` — permutation p-values
-- `pre_transition_features.csv` — raw feature values for the two pre-transition windows
-- `feature_distributions.png` — per-feature visualization
+- `descriptive_summary.csv`: per-feature percentile ranks
+- `permutation_results.csv`: permutation p-values
+- `pre_transition_features.csv`: raw feature values for the two pre-transition windows
+- `feature_distributions.png`: per-feature visualization
 
 ## References
 
